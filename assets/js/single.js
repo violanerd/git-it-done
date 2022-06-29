@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function(repo) {
     var apiUrl= "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -6,6 +7,11 @@ var getRepoIssues = function(repo) {
         if (response.ok){
             response.json().then(function(data) {
                 displayIssues(data);
+
+                // check if api has paginated issues 
+                if (response.headers.get("Link")){
+                    displayWarning(repo);
+                }
             });
         } 
         else {
@@ -49,7 +55,18 @@ var displayIssues = function(issues) {
     }
 }
 
-getRepoIssues("violanerd/run-buddy");
+var displayWarning = function(repo) {
+    //add text to warning container 
+    limitEl.textContent= "To see more than 30 issues, visit ";
+    var limitLinkEl = document.createElement("a");
+    limitLinkEl.textContent = "Github.com";
+    limitLinkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    limitLinkEl.setAttribute("target", "_blank");
+
+    limitEl.appendChild(limitLinkEl);
+}
+
+getRepoIssues("angular/angular");
 
 
 
